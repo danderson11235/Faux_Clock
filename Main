@@ -1,1 +1,20 @@
 //Main arduino code
+#include <Adafruit_LEDBackpack.h>
+#include <Adafruit_GFX.h>
+
+Adafruit_7segment fauxTimer = Adafruit_7segment();
+
+#define DISPLAY_ADDRESS1  
+
+void setup() {
+  fauxTimer.begin(DISPLAY_ADDRESS1);
+}
+
+void loop() {
+    
+}
+
+void upDateTimer(double timerIn){
+  int countDown = timerIn-millis();
+  
+}
