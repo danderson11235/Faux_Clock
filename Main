@@ -1,20 +1,47 @@
 //Main arduino code
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
 
 Adafruit_7segment fauxTimer = Adafruit_7segment();
 
-#define DISPLAY_ADDRESS1  
+#define DISPLAY_ADDRESS1  //---------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+long previousMillis;
+short state = 0;
+long gameDurration;
+
 
 void setup() {
   fauxTimer.begin(DISPLAY_ADDRESS1);
 }
 
 void loop() {
-    
+  
+    switch(state){
+      case 1: //runing
+        while(millis()-previousMillis>=1000){
+          if(upDateTimer(gameDurration)) state = 2;2````
+        }
+        break;
+      case 2:
+        //
+        break;
+      case 3:
+        //
+        break;
+      
+    }
 }
 
-void upDateTimer(double timerIn){
-  int countDown = timerIn-millis();
-  
+void upDateTimer(double upDateTimerIn){//returns true when time runs out
+  int countDown = (upDateTimerIn-millis())/1000;
+  fauxTmer.print(countDown);
+  if(countDown>0){
+    return false;
+  }else{
+    return true;
+  }
 }
+
+bool
