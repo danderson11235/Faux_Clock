@@ -1,3 +1,9 @@
+/*
+ Name:		Sketch1.ino
+ Created:	10/13/2017 2:05:56 PM
+ Author:	qwaszx
+*/
+
 //Main arduino code
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
@@ -11,37 +17,84 @@ long previousMillis;
 short state = 0;
 long gameDurration;
 
+short pins[2] = {};//-----put your pins here----------------------------------
 
 void setup() {
-  fauxTimer.begin(DISPLAY_ADDRESS1);
+	fauxTimer.begin(DISPLAY_ADDRESS1);
 }
 
 void loop() {
-  
-    switch(state){
-      case 1: //runing
-        while(millis()-previousMillis>=1000){
-          if(upDateTimer(gameDurration)) state = 2;2````
-        }
-        break;
-      case 2:
-        //
-        break;
-      case 3:
-        //
-        break;
-      
-    }
+
+	switch (state) {
+	case 1: //runing
+		char gameMode = 0;
+		bool gamesCompleated[]={false,false,false};
+		if (millis() - previousMillis >= 1000) {
+			if (upDateTimer(gameDurration)) state = 2;
+		}
+		for (short i = 0; i < 3; i++)
+		{
+			
+		}
+		switch (gameMode){
+		case 1:
+			if (simon()) {
+				gamesCompleated[0] = true;
+			}
+			break;
+		case 2:
+			if (resistor())
+			{
+				gamesCompleated[1] = true;
+			}
+			break;
+		case 3:
+			if (binary())
+			{
+				gamesCompleated[2] = true;
+			}
+			break;
+		}
+
+		break;
+
+	case 2: //game over
+		gameOver();
+		break;
+
+	case 3:
+
+		break;
+
+	}
 }
 
-void upDateTimer(double upDateTimerIn){//returns true when time runs out
-  int countDown = (upDateTimerIn-millis())/1000;
-  fauxTmer.print(countDown);
-  if(countDown>0){
-    return false;
-  }else{
-    return true;
-  }
+bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
+	int countDown = (upDateTimerIn - millis()) / 1000;
+	fauxTmer.print(countDown);
+	if (countDown>0) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+//games
+bool simon() {
+	return true;
 }
 
-bool
+bool resistor() {
+
+}
+
+bool binary() {
+
+}
+void gameOver() {
+
+}
+
+void win() {
+
+}
