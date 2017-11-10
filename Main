@@ -17,59 +17,77 @@ long previousMillis;
 short state = 0;
 long gameDurration;
 
+char gameMode = 0;
+bool gamesCompleated[3] = { false,false,false };
+
 short gameSelectPins[2] = {};//-----put your pins here----------------------------------
+
+//---------------------------------Binary----------------------------
+int targetNumber, currentNumber;
+bool targetBinaryNumber[10] = {};
+short buttonsPins[10] = { 1,2,3,4,5,6,7,8,9,10 };//--------------------------------------Put in your pins-----!!!!!
+bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
+bool BinaryledPins[4] = {1,2,3,4} 
 
 void setup() {
 	fauxTimer.begin(DISPLAY_ADDRESS1);
+	//binary setup
+	targetNumber = random(20, 999);
+	for (short i = 0; i < 10; i++)
+	{
+		targetBinaryNumber[i] = bitRead(targetNumber, i);
+	}
 }
 
 void loop() {
 
-	switch (state) {
-	case 1: //runing
-		char gameMode = 0;
-		bool gamesCompleated[3]={false,false,false};
-		if (millis() - previousMillis >= 1000) {
-			if (upDateTimer(gameDurration)) state = 2;
-		}
+	
+
+	if (millis() - previousMillis >= 1000) {
+		if (upDateTimer(gameDurration)) state = 2;
+	}
+	
+	if (state == 0){ 
+
 		for (short i = 0; i < 3; i++)
 		{
-			if (digitalRead(gameSelectPins[i])&& (!gamesCompleated[i]))
+			if (digitalRead(gameSelectPins[i]) && (!gamesCompleated[i]))
 			{
 				gameMode = i;
+				state = 1;
 			}
-			
 		}
-		switch (gameMode){
-		case 1:
+	}
+
+	if (state == 1){
+		if (gameMode == 0) {
 			if (simon()) {
 				gamesCompleated[0] = true;
+				state = 0;
 			}
-			break;
-		case 2:
+		}
+		else if (gameMode == 1) {
 			if (resistor())
 			{
 				gamesCompleated[1] = true;
+				state = 0;
 			}
-			break;
-		case 3:
+		}
+		else if (gameMode == 2) {
 			if (binary())
 			{
 				gamesCompleated[2] = true;
+				state = 0;
 			}
-			break;
-		}
+		}	
+	}
 
-		break;
-
-	case 2: //game over
+	if(gameMode == 2){ //game over
 		gameOver();
-		break;
+	}
 
-	case 3:
-
-		break;
-
+	if (gameMode == 3) { //win
+		win();
 	}
 }
 
@@ -89,33 +107,18 @@ bool simon() {
 }
 
 bool resistor() {
-	bool stay=true;
-	while (stay)
-	{
 
-	}
 }
 
 bool binary() {
-	bool stay = true;
-	int targetNumber, currentNumber;
-	bool targetBinaryNumber[10] = {};
-	targetNumber = random(5, 999);
-	short buttonsPins[10] = {1,2,3,4,5,6,7,8,9,10};//--------------------------------------Put in your pins-----!!!!!
-	bool buttonsStates[10] = {false,false,false,false,false,false,false,false,false,false};
 	for (short i = 0; i < 10; i++)
 	{
-		targetBinaryNumber[i] = bitRead(targetNumber,i);
-		digitalWrite(ledPins[i],targetBinaryNumber[i]);
-
-	}
-	while (stay)
-	{
-		for (int i = 0; i < 10; j++)
-		{
-			buttonsStates[i] = false;
-			buttonsStates[i] = digitalRead(buttonsPins[i]);
+		if (digitalRead(buttonsPins[i])) {
+			buttonsStates[i] = !buttonsStates[i];
 		}
+	}
+	if (digitalRead())
+	{
 
 	}
 }
