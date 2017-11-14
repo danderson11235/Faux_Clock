@@ -1,53 +1,72 @@
 /*
- Name:		Sketch1.ino
- Created:	10/13/2017 2:05:56 PM
- Author:	qwaszx
+Name:		Sketch1.ino
+Created:	10/13/2017 2:05:56 PM
+Author:	qwaszx
 */
 
 //Main arduino code
+/*
 #include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
-
-Adafruit_7segment fauxTimer = Adafruit_7segment();
+*/
+//Adafruit_7segment fauxTimer = Adafruit_7segment();
 
 #define DISPLAY_ADDRESS1  //---------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 long previousMillis;
 short state = 0;
-long gameDurration;
+long gameDurration = 100000;
 
 char gameMode = 0;
 bool gamesCompleated[3] = { false,false,false };
 
-short gameSelectPins[2] = {};//-----put your pins here----------------------------------
+short gameSelectPins[3] = {0,1,2};//-----put your pins here----------------------------------
 
-//---------------------------------Binary----------------------------
+							 //---------------------------------Binary----------------------------
 int targetNumber, currentNumber;
 bool targetBinaryNumber[10] = {};
 short buttonsPins[10] = { 1,2,3,4,5,6,7,8,9,10 };//--------------------------------------Put in your pins-----!!!!!
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
-bool BinaryledPins[4] = {1,2,3,4} 
+bool BinaryledPins[4] = { 1,2,3,4 };
 
 void setup() {
-	fauxTimer.begin(DISPLAY_ADDRESS1);
+	Serial.begin(9600);
+	//fauxTimer.begin(DISPLAY_ADDRESS1);
 	//binary setup
 	targetNumber = random(20, 999);
 	for (short i = 0; i < 10; i++)
 	{
 		targetBinaryNumber[i] = bitRead(targetNumber, i);
 	}
+	for (int i = 0; i < 3; i++)
+	{
+		pinMode(gameSelectPins[i], INPUT_PULLUP);
+	}
+	for (int i = 0; i < 10; i++)
+	{
+		pinMode(buttonsPins[i],INPUT_PULLUP);
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		pinMode(BinaryledPins[i],OUTPUT);
+	}
+
 }
 
 void loop() {
 
-	
 
-	if (millis() - previousMillis >= 1000) {
+
+	if (millis() - previousMillis >= 5000) {
 		if (upDateTimer(gameDurration)) state = 2;
 	}
-	
-	if (state == 0){ 
+
+	if ((gamesCompleated[0] && gamesCompleated[1] && gamesCompleated[2]) == true) {
+		state = 3;
+	}
+
+	if (state == 0) {
 
 		for (short i = 0; i < 3; i++)
 		{
@@ -59,7 +78,7 @@ void loop() {
 		}
 	}
 
-	if (state == 1){
+	if (state == 1) {
 		if (gameMode == 0) {
 			if (simon()) {
 				gamesCompleated[0] = true;
@@ -79,10 +98,10 @@ void loop() {
 				gamesCompleated[2] = true;
 				state = 0;
 			}
-		}	
+		}
 	}
 
-	if(gameMode == 2){ //game over
+	if (gameMode == 2) { //game over
 		gameOver();
 	}
 
@@ -93,7 +112,8 @@ void loop() {
 
 bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
 	int countDown = (upDateTimerIn - millis()) / 1000;
-	fauxTmer.print(countDown);
+	//fauxTmer.print(countDown);
+	Serial.println(countDown);
 	if (countDown>0) {
 		return false;
 	}
@@ -113,19 +133,30 @@ bool resistor() {
 bool binary() {
 	for (short i = 0; i < 10; i++)
 	{
-		if (digitalRead(buttonsPins[i])) {
+		if (digitalRead(buttonsPins[i])==LOW) {
 			buttonsStates[i] = !buttonsStates[i];
 		}
 	}
-	if (digitalRead())
+	if (digitalRead(gameSelectPins[2]))
 	{
+		bool check = true;
+		for (int i = 0; i < 10; i++)
+		{
+			if (buttonsStates[i] != targetBinaryNumber[i]) check = true;
+		}
+		if (check) {
+			gamesCompleated[2] = check;
+		}
+		else
+		{
 
+		}
 	}
 }
 void gameOver() {
-
+	Serial.println("Lose");
 }
 
 void win() {
-
+	Serial.println("Win");
 }
