@@ -1,0 +1,194 @@
+/*This sketch is a simple version of the famous Simon Says game. You can use it and improved it adding
+levels and everything you want to increase the diffuculty!
+
+There are five buttons connected to 50, 51, 52, 53 and 12.
+The buttons from 50 to 53 are used to insert the right sequence while 12 to start the game.
+
+When a wrong sequence is inserted all the leds will blink for three time very fast otherwhise the
+inserted sequence is correct.
+
+Hardware needed:
+5x pushbuttons
+1x Blue led
+1x Yellow led
+1x Red led
+1x Green Led
+4x 1k resistors
+4x 10k resisors
+10x jumpers
+*/
+
+const int MAX_LEVEL = 10;
+int sequence[MAX_LEVEL];
+int your_sequence[MAX_LEVEL];
+int level = 1;
+
+int velocity = 1000;
+
+void setup() {
+pinMode(50, INPUT_PULLUP);
+pinMode(51, INPUT_PULLUP);
+pinMode(52, INPUT_PULLUP);
+pinMode(53, INPUT_PULLUP);
+
+pinMode(40, OUTPUT);
+pinMode(41, OUTPUT);
+pinMode(42, OUTPUT);
+pinMode(43, OUTPUT);
+
+digitalWrite(40, LOW);
+digitalWrite(41, LOW);
+digitalWrite(42, LOW);
+digitalWrite(43, LOW);
+}
+
+void loop()
+{
+if (level == 1)
+generate_sequence();//generate a sequence;
+
+if (digitalRead(12) == LOW || level != 1) //If start button is pressed or you're winning
+{
+show_sequence();    //show the sequence
+get_sequence();     //wait for your sequence
+}
+}
+
+void show_sequence()
+{
+digitalWrite(40, LOW);
+digitalWrite(41, LOW);
+digitalWrite(42, LOW);
+digitalWrite(43, LOW);
+
+for (int i = 0; i < level; i++)
+{
+digitalWrite(sequence[i], HIGH);
+delay(velocity);
+digitalWrite(sequence[i], LOW);
+delay(200);
+}
+}
+
+void get_sequence()
+{
+int flag = 0; //this flag indicates if the sequence is correct
+
+for (int i = 0; i < level; i++)
+{
+flag = 0;
+while(flag == 0)
+{
+if (digitalRead(50) == LOW)
+{
+digitalWrite(43, HIGH);
+your_sequence[i] = 5;
+flag = 1;
+delay(200);
+if (your_sequence[i] != sequence[i])
+{
+wrong_sequence();
+return;
+}
+digitalWrite(43, LOW);
+}
+
+if (digitalRead(51) == LOW)
+{
+digitalWrite(42, HIGH);
+your_sequence[i] = 42;
+flag = 1;
+delay(200);
+if (your_sequence[i] != sequence[i])
+{
+wrong_sequence();
+return;
+}
+digitalWrite(42, LOW);
+}
+
+if (digitalRead(52) == LOW)
+{
+digitalWrite(41, HIGH);
+your_sequence[i] = 41;
+flag = 1;
+delay(200);
+if (your_sequence[i] != sequence[i])
+{
+wrong_sequence();
+return;
+}
+digitalWrite(41, LOW);
+}
+
+if (digitalRead(53) == LOW)
+{
+digitalWrite(40, HIGH);
+your_sequence[i] = 40;
+flag = 1;
+delay(200);
+if (your_sequence[i] != sequence[i])
+{
+wrong_sequence();
+return;
+}
+digitalWrite(40, LOW);
+}
+
+}
+}
+right_sequence();
+}
+
+void generate_sequence()
+{
+randomSeed(millis()); //in this way is really random!!!
+
+for (int i = 0; i < MAX_LEVEL; i++)
+{
+sequence[i] = random(2,6);
+}
+}
+void wrong_sequence()
+{
+for (int i = 0; i < 3; i++)
+{
+digitalWrite(40, HIGH);
+digitalWrite(41, HIGH);
+digitalWrite(42, HIGH);
+digitalWrite(43, HIGH);
+delay(250);
+digitalWrite(40, LOW);
+digitalWrite(41, LOW);
+digitalWrite(42, LOW);
+digitalWrite(43, LOW);
+delay(250);
+}
+level = 1;
+velocity = 1000;
+}
+
+void right_sequence()
+{
+digitalWrite(40, LOW);
+digitalWrite(41, LOW);
+digitalWrite(42, LOW);
+digitalWrite(43, LOW);
+delay(250);
+
+digitalWrite(40, HIGH);
+digitalWrite(41, HIGH);
+digitalWrite(42, HIGH);
+digitalWrite(43, HIGH);
+delay(500);
+digitalWrite(40, LOW);
+digitalWrite(41, LOW);
+digitalWrite(42, LOW);
+digitalWrite(43, LOW);
+delay(500);
+
+if (level < MAX_LEVEL);
+level++;
+
+velocity -= (velocity/5); //increase difficulty
+}
