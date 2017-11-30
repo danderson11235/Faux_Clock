@@ -1,3 +1,5 @@
+#include <Bounce2.h>
+
 /*
 Name:    Sketch1.ino
 Created:  10/13/2017 2:05:56 PM
@@ -21,15 +23,15 @@ long gameDurration = 100000;
 char gameMode = 0;
 bool gamesCompleated[3] = { true,false,true };
 
-short gameSelectPins[3] = { 0,12,13 };//-----put your pins here----------------------------------
+short gameSelectPins[3] = { 41,12,13 };//-----put your pins here----------------------------------
 
                   //---------------------------------Binary----------------------------
 int targetNumber, currentNumber;
 bool targetBinaryNumber[10] = {};
 short buttonsPins[10] = { 2,3,4,5,6,7,8,9,10,11 };//--------------------------------------Put in your pins-----!!!!!
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
-bool BinaryledPins[4] = { 23,24,25,26 };
-
+int BinaryledPins[4] = { 23,24,25,26 };
+Bounce bouncePins[10] = Bounce();
 void setup() {
   Serial.begin(9600);
   //fauxTimer.begin(DISPLAY_ADDRESS1);
@@ -141,10 +143,10 @@ bool binary() {
   }
   if (digitalRead(gameSelectPins[2]))
   {
-    bool check = true;
+    bool check = false;
     for (int i = 0; i < 10; i++)
     {
-      if (buttonsStates[i] != targetBinaryNumber[i]) check = true;
+      if (buttonsStates[i] != targetBinaryNumber[i]) check = false;
     }
     if (check) {
       gamesCompleated[2] = check;
