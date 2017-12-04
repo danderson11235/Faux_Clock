@@ -24,14 +24,15 @@ char gameMode = 0;
 bool gamesCompleated[3] = { true,false,true };
 
 short gameSelectPins[3] = { 41,12,13 };//-----put your pins here----------------------------------
-
+Bounce bounceSelectPins[3] = Bounce();
                   //---------------------------------Binary----------------------------
 int targetNumber, currentNumber;
 bool targetBinaryNumber[10] = {};
 short buttonsPins[10] = { 2,3,4,5,6,7,8,9,10,11 };//--------------------------------------Put in your pins-----!!!!!
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
 int BinaryledPins[4] = { 23,24,25,26 };
-Bounce bouncePins[10] = Bounce();
+Bounce bounceBinaryPins[10] = Bounce();
+//---------------------------------------------------------------------------------------------------------------
 void setup() {
   Serial.begin(9600);
   //fauxTimer.begin(DISPLAY_ADDRESS1);
@@ -44,10 +45,14 @@ void setup() {
   for (int i = 0; i < 3; i++)
   {
     pinMode(gameSelectPins[i], INPUT_PULLUP);
+    bounceSelectPins[i].attach(gameSelectPins[i]);
+    bounceSelectPins[i].interval(5);
   }
   for (int i = 0; i < 10; i++)
   {
     pinMode(buttonsPins[i], INPUT_PULLUP);
+    bounceBinaryPins[i].attach(buttonsPins[i]);
+    bounceBinaryPins[i].interval(5);
   }
   for (int i = 0; i < 4; i++)
   {
@@ -57,7 +62,9 @@ void setup() {
 }
 
 void loop() {
-
+  for(int i = 0; i < 3; i++){
+    bounceSelectPins[i].update();  
+  }
   if (millis() - previousMillis >= 5000) {
     if (upDateTimer(gameDurration)) state = 2;
   }
@@ -70,10 +77,12 @@ void loop() {
 
     for (short i = 0; i < 3; i++)
     {
-      if ((digitalRead(gameSelectPins[i])==LOW) && (!gamesCompleated[i]))
+      if ((bounceSelectPins[i].fell()==true) && (!gamesCompleated[i]))
       {
         gameMode = i;
         state = 1;
+        Serial.println("aaaaahhhhhhhhh");
+        Serial.println(i);
       }
     }
   }
@@ -133,7 +142,8 @@ bool resistor() {
 bool binary() {
   for (short i = 0; i < 10; i++)
   {
-    if (digitalRead(buttonsPins[i]) == LOW) {
+    bounceBinaryPins[i].update();
+    if (bounceBinaryPins[i].fell() == true) {
       buttonsStates[i] = !buttonsStates[i];
     }
   }
@@ -141,12 +151,14 @@ bool binary() {
   {
     digitalWrite(BinaryledPins[i],buttonsStates[i]);
   }
-  if (digitalRead(gameSelectPins[2]))
+  if (bounceSelectPins[1].read()==LOW)
   {
-    bool check = false;
+    bool check = true;
     for (int i = 0; i < 10; i++)
     {
-      if (buttonsStates[i] != targetBinaryNumber[i]) check = false;
+      if (buttonsStates[i] != targetBinaryNumber[i]) 
+        check = false;
+        break;
     }
     if (check) {
       gamesCompleated[2] = check;
