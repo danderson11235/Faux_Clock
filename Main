@@ -40,6 +40,7 @@ void setup() {
 	//fauxTimer.begin(DISPLAY_ADDRESS1);
 
 	//binary setup
+	randomSeed(millis());                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 	targetNumber = random(0, 10);
 	Serial.println(targetNumber);
 	for (short i = 0; i < 10; i++)
@@ -77,7 +78,6 @@ void loop() {
 
 	for (int i = 0; i < 3; i++) {
 		bounceSelectPins[i].update();
-		bounceConfirmPins[i].update();
 	}
 
 	if (millis() - previousMillis >= 5000) {
@@ -129,7 +129,7 @@ void loop() {
 bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
 	int countDown = (upDateTimerIn - millis()) / 1000;
 	//fauxTmer.print(countDown);
-	//Serial.println(countDown);
+	Serial.println(countDown);
 	if (countDown>0) {
 		return false;
 	}
@@ -147,6 +147,10 @@ bool resistor() {
 }
 
 bool binary() {
+	bool check = true;
+	Serial.print(" ");
+	Serial.print(targetNumber);
+	Serial.print(" ");
 	for (short i = 0; i < 10; i++)
 	{
 		bounceBinaryPins[i].update();
@@ -161,23 +165,27 @@ bool binary() {
 	{
 		digitalWrite(BinaryledPins[i], buttonsStates[i]);
 	}
-
-	if (bounceConfirmPins[2].fell() == true)
+	bounceConfirmPins[1].update();
+	if (bounceConfirmPins[1].fell() == true)
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			if (buttonsStates[i] != targetBinaryNumber[i])
-			{
-				gameDurration -= 5000;
-				Serial.print("lose");
-				return false;
+			if (buttonsStates[i] != targetBinaryNumber[i]) {
+				check = false;
 			}
-			else
-			{
-				gameDurration += 10000;
-				Serial.print("win");
-				return true;
-			}
+		}
+
+		if(!check)
+		{
+			gameDurration -= 5000;
+			Serial.print("lose");
+			return false;
+		}
+		else
+		{
+			gameDurration += 10000;
+			Serial.print("win");
+			return true;
 		}
 	}
 	else
