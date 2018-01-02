@@ -39,10 +39,6 @@ void setup() {
 	Serial.begin(9600);
 	//fauxTimer.begin(DISPLAY_ADDRESS1);
 
-	//binary setup
-	randomSeed(millis());                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-	targetNumber = random(0, 10);
-	Serial.println(targetNumber);
 	for (short i = 0; i < 10; i++)
 	{
 		targetBinaryNumber[i] = bitRead(targetNumber, i);
@@ -67,7 +63,11 @@ void setup() {
 	{
 		pinMode(BinaryledPins[i], OUTPUT);
 	}
-
+	
+	//binary setup
+	randomSeed(analogRead(A5)*analogRead(A4));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+	targetNumber = random(10, 40);
+	Serial.println(targetNumber);
 }
 
 void loop() {
