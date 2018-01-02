@@ -23,8 +23,8 @@ long gameDurration = 100000;
 char gameMode = 0;
 bool gamesCompleated[3] = { true,true,false };
 
-short gameSelectPins[3] = { 41,12,13 };//-----put your pins here----------------------------------
-int gameConfirmPins[3] = { 51,52,53 };
+short gameSelectPins[3] = { 53,50,13 };//-----put your pins here----------------------------------
+int gameConfirmPins[3] = { 52,51,12 };
 Bounce bounceSelectPins[3];
 Bounce bounceConfirmPins[3];
 //---------------------------------Binary----------------------------
@@ -34,169 +34,170 @@ short buttonsPins[10] = { 2,3,4,5,6,7,8,9,10,11 };//----------------------------
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
 int BinaryledPins[4] = { 23,24,25,26 };
 Bounce bounceBinaryPins[10];// = Bounce();
-							//---------------------------------------------------------------------------------------------------------------
+              //---------------------------------------------------------------------------------------------------------------
 void setup() {
-	Serial.begin(9600);
-	//fauxTimer.begin(DISPLAY_ADDRESS1);
+  Serial.begin(9600);
+  //fauxTimer.begin(DISPLAY_ADDRESS1);
+  
+  randomSeed(analogRead(A5)*analogRead(A4));
+  targetNumber = random(8, 40);
+  Serial.println(targetNumber);
+  
+  for (short i = 0; i < 10; i++)
+  {
+    targetBinaryNumber[i] = bitRead(targetNumber, i);
+    Serial.print(targetBinaryNumber[i]);
+  }
+  for (int i = 0; i < 3; i++)
+  {
+    pinMode(gameSelectPins[i], INPUT_PULLUP);
+    pinMode(gameConfirmPins[i], INPUT_PULLUP);
+    bounceSelectPins[i].attach(gameSelectPins[i]);
+    bounceSelectPins[i].interval(5);
+    bounceConfirmPins[i].attach(gameConfirmPins[i]);
+    bounceConfirmPins[i].interval(5);
+  }
+  for (int i = 0; i < 10; i++)
+  {
+    pinMode(buttonsPins[i], INPUT_PULLUP);
+    bounceBinaryPins[i].attach(buttonsPins[i]);
+    bounceBinaryPins[i].interval(5);
+  }
+  for (int i = 0; i < 4; i++)
+  {
+    pinMode(BinaryledPins[i], OUTPUT);
+  }
 
-	for (short i = 0; i < 10; i++)
-	{
-		targetBinaryNumber[i] = bitRead(targetNumber, i);
-		Serial.print(targetBinaryNumber[i]);
-	}
-	for (int i = 0; i < 3; i++)
-	{
-		pinMode(gameSelectPins[i], INPUT_PULLUP);
-		pinMode(gameConfirmPins[i], INPUT_PULLUP);
-		bounceSelectPins[i].attach(gameSelectPins[i]);
-		bounceSelectPins[i].interval(5);
-		bounceConfirmPins[i].attach(gameConfirmPins[i]);
-		bounceConfirmPins[i].interval(5);
-	}
-	for (int i = 0; i < 10; i++)
-	{
-		pinMode(buttonsPins[i], INPUT_PULLUP);
-		bounceBinaryPins[i].attach(buttonsPins[i]);
-		bounceBinaryPins[i].interval(5);
-	}
-	for (int i = 0; i < 4; i++)
-	{
-		pinMode(BinaryledPins[i], OUTPUT);
-	}
-	
-	//binary setup
-	randomSeed(analogRead(A5)*analogRead(A4));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-	targetNumber = random(10, 40);
-	Serial.println(targetNumber);
 }
 
 void loop() {
-	Serial.println(" ");
-	for (int i = 0; i<3; i++) {
-		Serial.print(gamesCompleated[i]);
-	}
+  Serial.println(" ");
+  for (int i = 0; i<3; i++) {
+    Serial.print(gamesCompleated[i]);
+  }
 
-	for (int i = 0; i < 3; i++) {
-		bounceSelectPins[i].update();
-	}
+  for (int i = 0; i < 3; i++) {
+    bounceSelectPins[i].update();
+  }
 
-	if (millis() - previousMillis >= 5000) {
-		if (upDateTimer(gameDurration)) state = 2;
-	}
+  if (millis() - previousMillis >= 5000) {
+    if (upDateTimer(gameDurration)) state = 2;
+  }
 
-	if ((gamesCompleated[0] && gamesCompleated[1] && gamesCompleated[2]) == true) {
-		state = 3;
-	}
+  if ((gamesCompleated[0] && gamesCompleated[1] && gamesCompleated[2]) == true) {
+    state = 3;
+  }
 
-	if (state == 0) {
+  if (state == 0) {
 
-		for (short i = 0; i < 3; i++)
-		{
-			if ((bounceSelectPins[i].fell() == true) && (!gamesCompleated[i]))
-			{
-				gameMode = i;
-				state = 1;
-				Serial.println("aaaaahhhhhhhhh");
-				Serial.println(i);
-			}
-		}
-	}
+    for (short i = 0; i < 3; i++)
+    {
+      if ((bounceSelectPins[i].fell() == true) && (!gamesCompleated[i]))
+      {
+        gameMode = i;
+        state = 1;
+        Serial.println("aaaaahhhhhhhhh");
+        Serial.println(i);
+      }
+    }
+  }
 
-	if (state == 1) {
-		if (gameMode == 0 && simon()) {
-			gamesCompleated[0] = true;
-			state = 0;
-		}
-		else if (gameMode == 1) {
-			gamesCompleated[1] = true;
-			state = 0;
-		}
-		else if (gameMode == 2 && binary()) {
-			gamesCompleated[2] = true;
-			state = 0;
-		}
-	}
+  if (state == 1) {
+    if (gameMode == 0 && simon()) {
+      gamesCompleated[0] = true;
+      state = 0;
+    }
+    else if (gameMode == 1) {
+      gamesCompleated[1] = true;
+      state = 0;
+    }
+    else if (gameMode == 2 && binary()) {
+      gamesCompleated[2] = true;
+      state = 0;
+    }
+  }
 
-	if (state == 2) { //game over
-		gameOver();
-	}
+  if (state == 2) { //game over
+    gameOver();
+  }
 
-	if (state == 3) { //win
-		win();
-	}
+  if (state == 3) { //win
+    win();
+  }
 }
 
 bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
-	int countDown = (upDateTimerIn - millis()) / 1000;
-	//fauxTmer.print(countDown);
-	Serial.println(countDown);
-	if (countDown>0) {
-		return false;
-	}
-	else {
-		return true;
-	}
+  int countDown = (upDateTimerIn - millis()) / 1000;
+  //fauxTmer.print(countDown);
+  Serial.println(countDown);
+  if (countDown>0) {
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 //games
 bool simon() {
-	return true;
+  return true;
 }
 
 bool resistor() {
-	return true;
+  return true;
 }
 
 bool binary() {
-	bool check = true;
-	Serial.print(" ");
-	Serial.print(targetNumber);
-	Serial.print(" ");
-	for (short i = 0; i < 10; i++)
-	{
-		bounceBinaryPins[i].update();
-		if (bounceBinaryPins[i].fell() == true) {
-			buttonsStates[i] = !buttonsStates[i];
-		}
-		Serial.print(i);
-		Serial.print(" ");
-		Serial.print(buttonsStates[i]);
-	}
-	for (char i = 0; i < 4; i++)
-	{
-		digitalWrite(BinaryledPins[i], buttonsStates[i]);
-	}
-	bounceConfirmPins[1].update();
-	if (bounceConfirmPins[1].fell() == true)
-	{
-		for (int i = 0; i < 10; i++)
-		{
-			if (buttonsStates[i] != targetBinaryNumber[i]) {
-				check = false;
-			}
-		}
+  bool check = true;
+  Serial.print(" ");
+  Serial.print(targetNumber);
+  Serial.print(" ");
+  for (short i = 0; i < 10; i++)
+  {
+    bounceBinaryPins[i].update();
+    if (bounceBinaryPins[i].fell() == true) {
+      buttonsStates[i] = !buttonsStates[i];
+    }
+    Serial.print(" ");
+    Serial.print(i);
+    Serial.print(targetBinaryNumber[i]);
+    Serial.print(buttonsStates[i]);
+  }
+  for (char i = 0; i < 4; i++)
+  {
+    digitalWrite(BinaryledPins[i], buttonsStates[i]);
+  }
+  bounceConfirmPins[2].update();
+  if (bounceConfirmPins[2].fell() == true)
+  {
+    for (int i = 0; i < 10; i++)
+    {
+      if (buttonsStates[i] != targetBinaryNumber[i]) {
+        check = false;
+      }
+    }
 
-		if(!check)
-		{
-			gameDurration -= 5000;
-			Serial.print("lose");
-			return false;
-		}
-		else
-		{
-			gameDurration += 10000;
-			Serial.print("win");
-			return true;
-		}
-	}
-	else
-	{
-		return false;
-	}
+    if(!check)
+    {
+      gameDurration -= 5000;
+      Serial.print("lose");
+      return false;
+    }
+    else
+    {
+      gameDurration += 10000;
+      Serial.print("win");
+      return true;
+    }
+  }
+  else
+  {
+    return false;
+  }
 }
 void gameOver() {
-	Serial.println("Lose");
+  Serial.println("Lose");
 }
 
 void win() {
-	Serial.println("Win");
+  Serial.println("Win");
 }
