@@ -15,6 +15,8 @@ Author: qwaszx
 //Adafruit_7segment fauxTimer = Adafruit_7segment();
 
 #define DISPLAY_ADDRESS1 0 //---------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define SECOND 1000;
+
 
 long previousMillis;
 short state = 0;
@@ -34,7 +36,7 @@ short buttonsPins[10] = { 2,3,4,5,6,7,8,9,10,11 };//----------------------------
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
 int BinaryledPins[10] = { 23,24,25,26,0,0,0,0,0,0 };//Pins!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Bounce bounceBinaryPins[10];// = Bounce();
-//-----------------------------------Simon-------------------------
+							//-----------------------------------Simon-------------------------
 const int MAX_LEVEL = 10;
 int sequence[MAX_LEVEL];
 int your_sequence[MAX_LEVEL];
@@ -47,8 +49,8 @@ int simonOutPins[4] = { 0,0,0,0 };//--Pins!!!!!!!!!!!!!!!!!!!!!
 void setup() {
 	Serial.begin(9600);
 	//fauxTimer.begin(DISPLAY_ADDRESS1);
-
-	randomSeed(analogRead(A5)*analogRead(A4));
+	delay(analogRead(A0));
+	randomSeed(millis());
 	targetNumber = random(0, 10);
 	Serial.println(targetNumber);
 
@@ -93,7 +95,7 @@ void loop() {
 		bounceSelectPins[i].update();
 	}
 
-	if (millis() - previousMillis >= 5000) {
+	if (millis() - previousMillis >= 1000) {
 		if (upDateTimer(gameDurration)) state = 2;
 	}
 
@@ -145,7 +147,7 @@ void loop() {
 }
 
 bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
-	int countDown = (upDateTimerIn - millis()) / 1000;
+	int countDown = (upDateTimerIn - millis()) / SECOND;
 	//fauxTmer.print(countDown);
 	Serial.println(countDown);
 	if (countDown>0) {
@@ -157,7 +159,12 @@ bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
 }
 //games
 bool simon() {
-	return true;
+		show_sequence();
+		if (get_sequence()) {
+			return true;
+			state = 0;
+		}
+		return false;
 }
 
 bool resistor() {
@@ -194,7 +201,7 @@ bool binary() {
 			}
 		}
 
-		if(!check)
+		if (!check)
 		{
 			gameDurration -= 5000;
 			Serial.print("lose");
@@ -214,24 +221,96 @@ bool binary() {
 	}
 }
 
+void show_sequence() {
+	allOff();
+	for (int i = 0; i < MAX_LEVEL; i++)
+	{
+		digitalWrite(simonOutPins[sequence[i]], HIGH);
+		delay(velocity);
+		digitalWrite(simonOutPins[sequence[i]], HIGH);
+		if (millis() - previousMillis >= 1000) {
+			if (upDateTimer(gameDurration)) {
+				state = 2;
+				return;
+			}
+		}
+	}
+
+}
+
+bool get_sequence() {
+	allOff();
+	for (int i = 0; i < 4; i++)
+	{
+		bounceSimonPins[i].update();
+	}
+	bool flag = true;
+	for (int j = 0; j < MAX_LEVEL; j++)
+	{
+		while (flag)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				if (bounceSimonPins[i].fell())
+				{
+					digitalWrite(simonOutPins[i], HIGH);
+					your_sequence[j] = i;
+					flag = false;
+				}
+			}
+			if (millis() - previousMillis >= 1000) {
+				if (upDateTimer(gameDurration)) {
+					state = 2;
+					return false;
+				}
+			}
+		}
+		if (your_sequence[j] != sequence[j])
+		{
+			wrong_sequence();
+			return false;
+		}
+	}
+	if (right_sequence()) {
+		return true;
+	}
+	return false;
+}
+
 void generate_sequence() {
-	randomSeed(analogRead(A5) * analogRead(A4));
+	randomSeed(millis());
 	for (int i = 0; i < MAX_LEVEL; i++) {
-		sequence[i] = random(2, 6);
+		sequence[i] = random(0, 4);
 	}
 }
 
 void wrong_sequence() {
+	allOff();
+	allOn();
+	allOff();
+	allOn();
+	allOff();
+	allOn();
+	allOff();
+
 	level = 0;
 	velocity = 1000;
+	gameDurration -= 10000;
 }
 
-void right_sequence() {
+bool right_sequence() {
+	allOff();
+	allOn();
+	allOff();
 	if (level < MAX_LEVEL)
 	{
 		level++;
-
-		velocity -= (velocity / 5);
+		velocity -= (velocity / 6);
+		return false;
+	}
+	else
+	{
+		return true;
 	}
 }
 
@@ -241,4 +320,18 @@ void gameOver() {
 
 void win() {
 	Serial.println("Win");
+}
+
+void allOff() {
+	for (int i = 0; i < 4; i++)
+	{
+		digitalWrite(simonOutPins[i],LOW);
+	}
+}
+
+void allOn() {
+	for (int i = 0; i < 4; i++)
+	{
+		digitalWrite(simonOutPins[i], HIGH);
+	}
 }
