@@ -34,7 +34,7 @@ int targetNumber, currentNumber;
 bool targetBinaryNumber[10] = {};
 short buttonsPins[10] = { 2,3,4,5,6,7,8,9,10,11 };//--------------------------------------Put in your pins-----!!!!!
 bool buttonsStates[10] = { false,false,false,false,false,false,false,false,false,false };
-int BinaryledPins[10] = { 23,24,25,26,0,0,0,0,0,0 };//Pins!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+int BinaryledPins[10] = { 22,23,24,25,26,27,28,29,30,31 };//Pins!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Bounce bounceBinaryPins[10];// = Bounce();
 							//-----------------------------------Simon-------------------------
 const int MAX_LEVEL = 10;
@@ -42,9 +42,9 @@ int sequence[MAX_LEVEL];
 int your_sequence[MAX_LEVEL];
 int level = 1;
 int velocity = 1000;
-int simonPins[4] = { 0,0,0,0 };//--Pins!!!!!!!!!!!!!!!!!!!!!
+int simonPins[4] = { 41,42,43,44 };//--Pins!!!!!!!!!!!!!!!!!!!!!
 Bounce bounceSimonPins[4];
-int simonOutPins[4] = { 0,0,0,0 };//--Pins!!!!!!!!!!!!!!!!!!!!!
+int simonOutPins[4] = { 35,36,37,38 };//--Pins!!!!!!!!!!!!!!!!!!!!!
 
 void setup() {
 	Serial.begin(9600);
@@ -159,12 +159,12 @@ bool upDateTimer(double upDateTimerIn) {//returns true when time runs out
 }
 //games
 bool simon() {
-		show_sequence();
-		if (get_sequence()) {
-			return true;
-			state = 0;
-		}
-		return false;
+	show_sequence();
+	if (get_sequence()) {
+		return true;
+		state = 0;
+	}
+	return false;
 }
 
 bool resistor() {
@@ -325,7 +325,7 @@ void win() {
 void allOff() {
 	for (int i = 0; i < 4; i++)
 	{
-		digitalWrite(simonOutPins[i],LOW);
+		digitalWrite(simonOutPins[i], LOW);
 	}
 }
 
